@@ -8,8 +8,6 @@
 
 angular.module('ngPDFViewer', []).
 directive('pdfviewer', [ '$parse', function($parse) {
-	var canvas = null;
-	var instance_id = null;
 
 	return {
 		restrict: "E",
@@ -52,10 +50,10 @@ directive('pdfviewer', [ '$parse', function($parse) {
 				console.log('renderPage ', num);
 				$scope.pdfDoc.getPage(num).then(function(page) {
 					var viewport = page.getViewport($scope.scale);
-					var ctx = canvas.getContext('2d');
+					var ctx = $scope.canvas.getContext('2d');
 
-					canvas.height = viewport.height;
-					canvas.width = viewport.width;
+					$scope.canvas.height = viewport.height;
+					$scope.canvas.width = viewport.width;
 
 					page.render({ canvasContext: ctx, viewport: viewport }).promise.then(
 						function() { 
@@ -77,7 +75,7 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			};
 
 			$scope.$on('pdfviewer.nextPage', function(evt, id) {
-				if (id !== instance_id) {
+				if (id !== $scope.instance_id) {
 					return;
 				}
 
@@ -88,7 +86,7 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			});
 
 			$scope.$on('pdfviewer.prevPage', function(evt, id) {
-				if (id !== instance_id) {
+				if (id !== $scope.instance_id) {
 					return;
 				}
 
@@ -99,7 +97,7 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			});
 
 			$scope.$on('pdfviewer.gotoPage', function(evt, id, page) {
-				if (id !== instance_id) {
+				if (id !== $scope.instance_id) {
 					return;
 				}
 
@@ -110,8 +108,8 @@ directive('pdfviewer', [ '$parse', function($parse) {
 			});
 		} ],
 		link: function(scope, iElement, iAttr) {
-			canvas = iElement.find('canvas')[0];
-			instance_id = iAttr.id;
+			scope.canvas = iElement.find('canvas')[0];
+			scope.instance_id = scope.id;
 
 			iAttr.$observe('src', function(v) {
 				console.log('src attribute changed, new value is', v);
